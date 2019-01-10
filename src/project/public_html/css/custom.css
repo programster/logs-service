@@ -1,0 +1,44 @@
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+body {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 1600px; /* or 950px */
+}
+
+.clickableRow { cursor:pointer; }
+
+tr:nth-child(odd){
+  background-color: #ffffff;
+}
+
+tr:nth-child(even){
+  background-color: #F8F8F8 ;
+}
+
+tr:hover {
+     background-color: #F0F0F0;
+}
+
+.logs-overlay {
+    background-color: rgba(0, 0, 0, 0.55);
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1075;
+}
+.logs-overlay .panel {
+    background-color: white;
+    border-radius: 4px;
+    max-height: 90%;
+    max-width: 90%;
+    overflow: auto;
+    position: absolute;
+}
