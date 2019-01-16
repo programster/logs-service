@@ -63,11 +63,13 @@ EXPOSE 80
 #------------------------- Set up Apache and site file permissions----------------------------------
 
 # Add our website's files to the default apache directory (/var/www)
-COPY settings /var/www/site/settings
-COPY project /var/www/site/project
+COPY --chown root:www-data app /var/www/site
 
-# Make root and www-data owner/group of the www area for permissions (uploads writeable by apache)
-RUN chown root:www-data -R /var/www/
+# Remove the .env file. This should not be part of the image and be added through a volume by the user.
+RUN rm /var/www/site/.env
+
+# need to ensure apache can get to our site.
+RUN chown root:www-data /var/www/
 
 # Update our apache sites available with the config we created
 COPY project/docker/apache-config.conf /etc/apache2/sites-enabled/000-default.conf
