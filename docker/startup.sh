@@ -26,7 +26,7 @@ echo "starting apache server...."
 ntpdate ntp.ubuntu.com
 
 # start the alerter script
-/usr/bin/php /var/www/logger_frontend/project/scripts/alerter/main.php
+/usr/bin/php /var/www/logger_frontend/project/scripts/Alerter.php
 
 # Star the cron service
 cron
