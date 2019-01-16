@@ -5,7 +5,7 @@ This service aims to provide an endpoint for your services to send logs to, and 
 
 If you wish to develop against the container, deploy as follows:
 
-```
+```bash
 REGISTRY="docker-registry.your-org.org:5000"
 PROJECT_NAME="logger-frontend-dev"
 CONTAINER_IMAGE="`echo $REGISTRY`/`echo $PROJECT_NAME`"
