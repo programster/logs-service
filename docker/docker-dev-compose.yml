@@ -1,0 +1,37 @@
+version: "3"
+
+networks:
+  backend:
+    driver: bridge
+
+services:
+  app_service:
+    container_name: app
+    image: ${REGISTRY}/${PROJECT_NAME}
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - backend
+    volumes:
+      - $HOME/code/app:/var/www/my-site
+    env_file:
+      - ./../app/.env 
+
+  database_service:
+    image: mariadb:10.3
+    container_name: db
+    restart: always
+    ports:
+      - 3306:3306
+    networks:
+        backend:
+            aliases:
+                - db
+    volumes:
+      - $HOME/volumes/mysql/data:/var/lib/mysql
+    env_file:
+      - ./../app/.env 
+      
+
