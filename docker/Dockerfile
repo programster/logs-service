@@ -1,8 +1,3 @@
-# Due to layout of this project, the dockerfile will be moved up two directories and run during
-# the build. Thus when performing any ADD commands, remember that this is "where you are"
-# The layout is this way so that the settings file sits one level above the project (trunk) so that
-# each dev can have their own settings and they do not get merged into the trunk.
-
 FROM ubuntu:18.04
 MAINTAINER sdpagent@gmail.com
 
@@ -35,24 +30,20 @@ RUN a2enmod rewrite
 #-------------------------- PHP ini Setttings-------------------------------------------------------
 
 # Increase php's max allowed memory
-RUN sed -i 's;memory_limit = .*;memory_limit = -1;' /etc/php/7.0/cli/php.ini
-RUN sed -i 's;memory_limit = .*;memory_limit = -1;' /etc/php/7.0/apache2/php.ini
+RUN sed -i 's;memory_limit = .*;memory_limit = -1;' /etc/php/7.2/cli/php.ini
+RUN sed -i 's;memory_limit = .*;memory_limit = -1;' /etc/php/7.2/apache2/php.ini
 
 # Change apache php to display errors
 # The application layer will decide whether to show errrors or not base on ENVIRONMENT variable
-RUN sed -i 's;display_errors = Off;display_errors = On;' /etc/php/7.0/apache2/php.ini
+RUN sed -i 's;display_errors = Off;display_errors = On;' /etc/php/7.2/apache2/php.ini
 
 # Change php cli to display errors
-RUN sed -i 's;display_errors = Off;display_errors = On;' /etc/php/7.0/cli/php.ini
+RUN sed -i 's;display_errors = Off;display_errors = On;' /etc/php/7.2/cli/php.ini
 
-# Change apache php to allow larger uploads
-RUN sed -i 's;post_max_size = .*;post_max_size = 1000M;' /etc/php/7.0/apache2/php.ini
 
 # Allow the cli scripts to have an infinite execution time
-RUN sed -i 's;max_execution_time = .*;max_execution_time = -1;' /etc/php/7.0/apache2/php.ini
+RUN sed -i 's;max_execution_time = .*;max_execution_time = -1;' /etc/php/7.2/apache2/php.ini
 
-# Increase session lifetime
-RUN sed -i 's;session.gc_maxlifetime = .*;session.gc_maxlifetime = 43200;' /etc/php/7.0/apache2/php.ini
 
 #---------------------------------------------------------------------------------------------------
 
@@ -73,18 +64,15 @@ RUN rm /var/www/site/.env
 RUN chown root:www-data /var/www/
 
 # Update our apache sites available with the config we created
-COPY project/docker/apache-config.conf /etc/apache2/sites-enabled/000-default.conf
+COPY docker/apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 
 # Add our supervisor config to the container
-COPY project/docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Use the crontab file.
-# The crontab file was already added when we added "project"
 ADD docker/crons.conf /root/crons.conf
 RUN crontab /root/crons.conf
 
-
 # Execute the container's startup script which will start many processes/services
-# The startup file was already added when we added "project"
 COPY docker/startup.sh /root/startup.sh
 CMD ["/bin/bash", "/root/startup.sh"]
