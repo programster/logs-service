@@ -14,13 +14,12 @@ fi
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT") 
 
-echo "starting apache server...."
-# Run the apache process in the background
-/usr/sbin/apache2 -D APACHE_PROCESS &
+# Ensure the apache service is not running as supervisord will manage it.
+service apache2 stop
 
 # run migrations
 # it is important this runs before supervisord launches background processes.
-/usr/bin/php $SCRIPTPATH/../index.php migrate
+/usr/bin/php /var/www/site/scripts/migrate.sh
 
 # sync the clock
 ntpdate ntp.ubuntu.com
@@ -30,10 +29,6 @@ ntpdate ntp.ubuntu.com
 
 # Star the cron service
 cron
-
-# Stop apache so that supervisor can start and manage it.
-# leaving apache running will result in supervisor not managing the process.
-service apache2 stop
 
 # Start supervisord to manage all processes and tie up the frontend
 /usr/bin/supervisord
