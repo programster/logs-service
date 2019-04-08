@@ -63,7 +63,7 @@ EXPOSE 80
 #------------------------- Set up Apache and site file permissions----------------------------------
 
 # Add our website's files to the default apache directory (/var/www)
-COPY --chown root:www-data app /var/www/site
+COPY --chown=root:www-data app /var/www/site
 
 # Remove the .env file. This should not be part of the image and be added through a volume by the user.
 RUN rm /var/www/site/.env
