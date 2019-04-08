@@ -2,8 +2,6 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-
-
 $slimSettings = array('determineRouteBeforeAppMiddleware' => true);
 
 if (ENVIRONMENT === 'dev') {
