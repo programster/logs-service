@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d6fa95178d136b3e86efc4517ff1c66",
+    "content-hash": "f688e855e69d3ef6c385def9b80612fb",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -378,7 +378,7 @@
             "authors": [
                 {
                     "name": "Stuart Page",
-                    "email": "stuart.page@irap.org",
+                    "email": "stuart.page@iRAP.org",
                     "role": "Developer"
                 }
             ],
@@ -773,6 +773,52 @@
             "time": "2018-01-21T07:42:36+00:00"
         },
         {
+            "name": "programster/core-libs",
+            "version": "1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/programster/package-core-libs.git",
+                "reference": "d9e8abf27a1f17af4b2dae393ebcb7f41f852933"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/programster/package-core-libs/zipball/d9e8abf27a1f17af4b2dae393ebcb7f41f852933",
+                "reference": "d9e8abf27a1f17af4b2dae393ebcb7f41f852933",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "ext-mysqli": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Programster\\CoreLibs\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stuart Page",
+                    "email": "sdpagent@gamail.com",
+                    "homepage": "https://blog.programster.org",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Core libraries for PHP 7.0+",
+            "homepage": "https://github.com/programster/package-core-libs",
+            "keywords": [
+                "core",
+                "library"
+            ],
+            "time": "2019-03-28T13:58:30+00:00"
+        },
+        {
             "name": "psr/container",
             "version": "1.0.0",
             "source": {
@@ -1126,7 +1172,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
