@@ -41,8 +41,11 @@ fi
 # clean up
 rm $SCRIPTPATH/../../Dockerfile
 
-# push to the repository
-docker push $IMAGE_NAME
+
+# push to the repository if one was specified
+if [[ $REGISTRY ]]; then
+    docker push $IMAGE_NAME
+fi
 
 echo "Run the container with the following command:"
 echo "bash deploy.sh"
