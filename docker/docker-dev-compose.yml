@@ -15,7 +15,7 @@ services:
     networks:
       - backend
     volumes:
-      - $HOME/code/app:/var/www/my-site
+      - $HOME/code/app:/var/www/site
     env_file:
       - ./../app/.env 
 

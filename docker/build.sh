@@ -26,6 +26,7 @@ fi
 # Copy the docker file up and run it in order to build the container.
 # We need to move the dockerfile up so that it can easily add everything to the container.
 cp -f Dockerfile ../.
+cp -f .dockerignore ../.
 cd ../.
 
 # Ask the user if they want to use the docker cache
@@ -39,7 +40,8 @@ else
 fi
 
 # clean up
-rm $SCRIPTPATH/../../Dockerfile
+rm $SCRIPTPATH/../Dockerfile
+rm $SCRIPTPATH/../.dockerignore
 
 
 # push to the repository if one was specified

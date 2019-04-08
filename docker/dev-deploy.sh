@@ -28,5 +28,5 @@ docker rm $PROJECT_NAME
 #  --name="$PROJECT_NAME" \
 #  $CONTAINER_IMAGE
 
-docker-compose --file docker-compose.yml up
+docker-compose --file docker-dev-compose.yml up
 
