@@ -6,13 +6,7 @@
 
 class InitialSchema implements iRAP\Migrations\MigrationInterface
 {
-    
-    /**
-     * Create the logs table that everything will be logged into.
-     *
-     * @param \mysqli $mysqliConn
-     */
-    public function up() 
+    public function up(mysqli $mysqliConn) 
     {
         $query = 
             "CREATE TABLE `logs` ( " .
@@ -20,7 +14,8 @@ class InitialSchema implements iRAP\Migrations\MigrationInterface
                 "`message` text NOT NULL COMMENT 'the actual error message', " .
                 "`context` longtext NOT NULL COMMENT 'json string of context for the error (see logging standards)', " .
                 "`priority` int(1) NOT NULL COMMENT 'priority level, higher = more important', " .
-                "`when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, " .
+                "`when` int unsigned NOT NULL, " .
+                "`recieved` int unsigned NOT NULL, " .
                 "PRIMARY KEY (`id`), " .
                 "KEY `priority` (`priority`), " .
                 "KEY `when` (`when`) " .
@@ -35,7 +30,7 @@ class InitialSchema implements iRAP\Migrations\MigrationInterface
      *
      * @param \mysqli $mysqliConn - the mysqli connection.
      */
-    public function down() 
+    public function down(mysqli $mysqli) 
     {
         $query  = "Drop table `logs`";
         SiteSpecific::getDb()->query($query);

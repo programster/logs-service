@@ -13,7 +13,11 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 cd $SCRIPTPATH
 
 # load the variables
-source $SCRIPTPATH/../../settings/docker_settings.sh
+source $SCRIPTPATH/../app/.env
+
+# Need to do this for docker-compose to work.
+export REGISTRY=$REGISTRY
+export PROJECT_NAME=$PROJECT_NAME
 
 CONTAINER_IMAGE="`echo $REGISTRY`/`echo $PROJECT_NAME`"
 

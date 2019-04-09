@@ -6,63 +6,74 @@
 
 class LogFilter
 {
-    private $m_alert_levels;
-    private $m_min_age;
-    private $m_max_age;
-    private $m_minimum_id;
-    private $m_maximum_id;
+    private $m_alertLevels;
+    private $m_minAge;
+    private $m_maxAge;
+    private $m_minimumId;
+    private $m_maximumId;
     private $m_search_text;
     
     
     public function __construct() 
     {
-        $this->m_alert_levels = array();
-        $this->m_min_age = null;
-        $this->m_max_age = null;
-        $this->m_minimum_id = null;
-        $this->m_maximum_id = null;
+        $this->m_alertLevels = array();
+        $this->m_minAge = null;
+        $this->m_maxAge = null;
+        $this->m_minimumId = null;
+        $this->m_maximumId = null;
         $this->m_search_text = null;
     }
     
     
-    public function get_where_statement() : string
+    /**
+     * 
+     * @return string
+     */
+    public function generateWhereStatement() : string
     {       
-        $where_statement = "";
+        $whereStatement = "";
         $statements = array();
         
-        if ($this->m_maximum_id !== null && $this->m_maximum_id !== 0) {
-            $statements[] = "`id` < '" . ($this->m_maximum_id + 1) . "'";
+        if ($this->m_maximumId !== null && $this->m_maximumId !== 0) 
+        {
+            $statements[] = "`id` < '" . ($this->m_maximumId + 1) . "'";
         }
         
-        if ($this->m_minimum_id !== null && $this->m_minimum_id !== 0) {
-            $statements[] = "`id` > '" . ($this->m_minimum_id - 1) . "'";
+        if ($this->m_minimumId !== null && $this->m_minimumId !== 0) 
+        {
+            $statements[] = "`id` > '" . ($this->m_minimumId - 1) . "'";
         }
         
-        if ($this->m_search_text !== null && $this->m_search_text !== "") {
+        if ($this->m_search_text !== null && $this->m_search_text !== "") 
+        {
             $escapedMessage = SiteSpecific::getDb()->escape_string($this->m_search_text);
             $statements[] = "`message` LIKE '%{$escapedMessage}%'";
         }
         
-        if (count($this->m_alert_levels) > 0) {
-            $quoted_alert_levels = iRAP\CoreLibs\ArrayLib::wrapElements($this->get_alert_levels(), "'");
+        if (count($this->m_alertLevels) > 0) 
+        {
+            $quoted_alert_levels = iRAP\CoreLibs\ArrayLib::wrapElements($this->getAlertLevels(), "'");
             $statements[] = "`priority` IN (" . implode(', ', $quoted_alert_levels) . ")";
         }
         
         // We use 'date("Y-m-d H:i:s", time())' instead of just CURRENT_TIMESTAMP so that the deployer
         // doesn't have to remember to set the timezone on the host to UTC wherever the db is.
-        if ($this->m_min_age != null) {          
-            $statements[] = "TIMESTAMPDIFF(SECOND, `when`, '" . date("Y-m-d H:i:s", time()) . "') > " . $this->m_min_age;
+        if ($this->m_minAge != null) 
+        {          
+            $statements[] = "TIMESTAMPDIFF(SECOND, `when`, '" . date("Y-m-d H:i:s", time()) . "') > " . $this->m_minAge;
         }
         
-        if ($this->m_max_age != null) {                        
-            $statements[] = "TIMESTAMPDIFF(SECOND, `when`, '" . date("Y-m-d H:i:s", time()) . "') < " . $this->m_max_age;
+        if ($this->m_maxAge != null) 
+        {                        
+            $statements[] = "TIMESTAMPDIFF(SECOND, `when`, '" . date("Y-m-d H:i:s", time()) . "') < " . $this->m_maxAge;
         }
         
-        if (count($statements) > 0) {
-            $where_statement = "WHERE " . implode($statements, " AND ");
+        if (count($statements) > 0) 
+        {
+            $whereStatement = "WHERE " . implode($statements, " AND ");
         }
         
-        return $where_statement;
+        return $whereStatement;
     }
     
     
@@ -71,9 +82,9 @@ class LogFilter
      *
      * @param int $id
      */
-    public function set_minimum_id($id)
+    public function setMinId($id)
     {
-        $this->m_minimum_id = $id;
+        $this->m_minimumId = $id;
     }
     
     
@@ -82,9 +93,9 @@ class LogFilter
      *
      * @param int $id
      */
-    public function set_maximum_id($id)
+    public function setMaxId($id)
     {
-        $this->m_maximum_id = $id;
+        $this->m_maximumId = $id;
     }
     
     
@@ -95,7 +106,7 @@ class LogFilter
      */
     public function enable_alert_level($level)
     {
-        $this->m_alert_levels[$level] = 1;
+        $this->m_alertLevels[$level] = 1;
     }
     
     
@@ -112,8 +123,9 @@ class LogFilter
      */
     public function disable_alert_level($level)
     {
-        if (isset($this->m_alert_levels[$level])) {
-            unset($this->m_alert_levels[$level]);
+        if (isset($this->m_alertLevels[$level])) 
+        {
+            unset($this->m_alertLevels[$level]);
         }
     }
     
@@ -129,16 +141,18 @@ class LogFilter
     
     
     /**
-     * Load the current filter from the session.
-     *
+     * Load the current filter from the session. If one doesnt exist, then create one.
      * @return LogFilter
      */
-    public static function load()
+    public static function load() : LogFilter
     {
-        $logFilter = new LogFilter();
-        
-        if (isset($_SESSION['log_filter'])) {
+        if (isset($_SESSION['log_filter'])) 
+        {
             $logFilter = $_SESSION['log_filter']; 
+        }
+        else
+        {
+            $logFilter = new LogFilter();
         }
         
         return $logFilter;
@@ -147,25 +161,15 @@ class LogFilter
     
     public function set_max_age($seconds)
     {
-        $this->m_max_age = $seconds; 
+        $this->m_maxAge = $seconds; 
     }
-    public function set_min_age($seconds)
-    {
-        $this->m_min_age = $seconds; 
-    }
+    
+    
+    public function set_min_age($seconds){ $this->m_minAge = $seconds; }
     
         
     // Accessors
-    public function get_max_age()      
-    {
-        return $this->m_max_age; 
-    }
-    public function get_min_age()      
-    {
-        return $this->m_min_age; 
-    }
-    public function get_alert_levels() 
-    {
-        return array_keys($this->m_alert_levels); 
-    }
+    public function get_max_age() : int { return $this->m_maxAge; }
+    public function getMinAge() : int { return $this->m_minAge; }
+    public function getAlertLevels() { return array_keys($this->m_alertLevels); }
 }

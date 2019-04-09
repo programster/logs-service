@@ -79,7 +79,7 @@ class Alerter
             foreach ($logs as $log)
             {
                 /* @var $log Log */
-                $message = $log->get_message();
+                $message = $log->getMessage();
                 
                 if (strlen($message) > 100) {
                     $message = substr($message, 0, 100) . "...";

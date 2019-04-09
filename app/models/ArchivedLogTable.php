@@ -36,10 +36,10 @@ class ArchivedLogTable extends \iRAP\MysqlObjects\AbstractUuidTable
     {
         $archivedLog = $this->create(
             array(
-                'message'  => $log->get_message(), 
-                'context'  => $log->get_context(), 
-                'priority' => $log->get_priority(), 
-                'when'     => $log->get_when()
+                'message'  => $log->getMessage(), 
+                'context'  => $log->getContext(), 
+                'priority' => $log->getPriority(), 
+                'when'     => $log->getWhen()
             )
         );
         
@@ -91,7 +91,7 @@ class ArchivedLogTable extends \iRAP\MysqlObjects\AbstractUuidTable
     {
         $query = 
             "SELECT * FROM `" . $this->getTableName() . "` " .
-            $filter_object->get_where_statement() .
+            $filter_object->generateWhereStatement() .
             " ORDER BY `ID` DESC";
         
         if ($limit !== null) {

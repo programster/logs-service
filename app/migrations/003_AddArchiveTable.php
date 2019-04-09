@@ -27,7 +27,8 @@ class Migration_Archive_table implements iRAP\Migrations\MigrationInterface
         
         $result = $mysqliConn->query($createArchiveTableQuery);
         
-        if ($result === false) {
+        if ($result === false) 
+        {
             throw new Exception("Failed to convert logs table to utf8.");
         }
     }
@@ -43,7 +44,8 @@ class Migration_Archive_table implements iRAP\Migrations\MigrationInterface
         $createArchiveTableQuery = "DROP TABLE `logs_archive`";
         $result = $mysqliConn->query($createArchiveTableQuery);
         
-        if ($result === false) {
+        if ($result === false) 
+        {
             throw new Exception("Failed to convert logs table to utf8.");
         }
     }

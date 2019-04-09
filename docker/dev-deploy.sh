@@ -13,12 +13,18 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 cd $SCRIPTPATH
 
 # load the variables
-source $SCRIPTPATH/../../settings/docker_settings.sh
+source $SCRIPTPATH/../app/.env
+
+# Need to do this for docker-compose to work.
+export REGISTRY=$REGISTRY
+export PROJECT_NAME=$PROJECT_NAME
 
 CONTAINER_IMAGE="`echo $REGISTRY`/`echo $PROJECT_NAME`"
 
-docker kill $PROJECT_NAME
-docker rm $PROJECT_NAME
+#docker kill $PROJECT_NAME
+#docker rm $PROJECT_NAME
+
+
 
 #docker run -d \
 #  --restart=always \
@@ -28,5 +34,6 @@ docker rm $PROJECT_NAME
 #  --name="$PROJECT_NAME" \
 #  $CONTAINER_IMAGE
 
+docker-compose down
 docker-compose --file docker-dev-compose.yml up
 

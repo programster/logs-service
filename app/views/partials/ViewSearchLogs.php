@@ -1,3 +1,20 @@
+<?php
+
+class ViewSearchLogs extends AbstractView
+{
+    private $m_filter;
+    
+    
+    public function __construct(LogFilter $filter)
+    {
+        $this->m_filter = $filter;
+    }
+    
+    
+    protected function renderContent() 
+    {
+?>
+
 <div class="row">
     <div class="col-xs-12">
         <div class="panel panel-default collapsible">
@@ -67,27 +84,29 @@
                                 "alert"
                             );
 
-                            /* @var $log_filter LogFilter */
-                            $enabled_alert_levels = $log_filter->get_alert_levels();
+                            /* @var $this->m_filter LogFilter */
+                            $enabledAlertLevels = $this->m_filter->getAlertLevels();
 
                             foreach ($alert_levels as $alert_level => $alert_level_name)
                             {
                                 $active = false;
-                                if (in_array($alert_level, $enabled_alert_levels)) {
+                                
+                                if (in_array($alert_level, $enabledAlertLevels)) 
+                                {
                                     $active = "active";
                                 }
 
                                 print
-                                        '<div class="btn-group btn-group-sm">' .
-                                        '<button ' .
-                                        'id="btn_' . $alert_level_name . '" ' .
-                                        'type="button" ' .
-                                        'value="' . $alert_level_name . '" ' .
-                                        'class="btn btn-default ' . $active . '"' .
-                                        '>' .
-                                        $alert_level_name .
-                                        '</button>' .
-                                        '</div>';
+                                    '<div class="btn-group btn-group-sm">' .
+                                    '<button ' .
+                                    'id="btn_' . $alert_level_name . '" ' .
+                                    'type="button" ' .
+                                    'value="' . $alert_level_name . '" ' .
+                                    'class="btn btn-default ' . $active . '"' .
+                                    '>' .
+                                    $alert_level_name .
+                                    '</button>' .
+                                    '</div>';
                             }
                             ?>
                         </div>
@@ -101,12 +120,12 @@
                     foreach ($alert_levels as $alert_level)
                     {
                         print
-                                '<input ' .
-                                'type="hidden" ' .
-                                'id="level_' . $alert_level . '" ' .
-                                'name="level_' . $alert_level . '" ' .
-                                'value="false" ' .
-                                '/>';
+                            '<input ' .
+                            'type="hidden" ' .
+                            'id="level_' . $alert_level . '" ' .
+                            'name="level_' . $alert_level . '" ' .
+                            'value="false" ' .
+                            '/>';
                     }
                     ?>
 
@@ -189,3 +208,7 @@
 
     });
 </script>
+
+<?php
+    }
+}

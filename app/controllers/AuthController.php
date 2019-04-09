@@ -1,23 +1,39 @@
 <?php
 
 
-class AuthController
+class AuthController extends AbstractSlimController
 {
+    /**
+     * Register routes with slim routing.
+     * @param \Slim\App $app
+     */
+    public static function registerWithApp(\Slim\App $app)
+    {
+        $app->get('/login', function (\Slim\Http\Request $request, Slim\Http\Response $response, $args) {
+            $logsController = new AuthController($request, $response, $args);
+            return $logsController->showLoginPage();
+        });
+        
+        return $app;
+    }
+    
+    
     /**
      * Handle a user's request to see the login page.
      */
     public function showLoginPage()
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!isset($_SESSION['user_id'])) 
+        {
             // Display the login form.
-            $header_view = SiteSpecific::get_view(
+            $headerView = SiteSpecific::getView(
                 __DIR__ . '/../views/header.php', array(
                 'title' => 'Logs')
             );
             
-            $loginView   = SiteSpecific::get_view(__DIR__ . '/../views/login.php');
-            $footer_view = SiteSpecific::get_view(__DIR__ . '/../views/footer.php');
-            print $header_view . $loginView . $footer_view;
+            $loginView = SiteSpecific::getView(__DIR__ . '/../views/login.php');
+            $footer_view = SiteSpecific::getView(__DIR__ . '/../views/footer.php');
+            print $headerView . $loginView . $footer_view;
         }
         else
         {

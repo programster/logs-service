@@ -1,145 +1,134 @@
 <?php
 
 
-class LogsController
+class LogsController extends AbstractSlimController
 {
-
-    public function __construct()
+    /**
+     * Register routes with slim routing.
+     * @param \Slim\App $app
+     */
+    public static function registerWithApp(\Slim\App $app)
     {
-        parent::__construct();
-
-        // only allow granted users access
-        if (!isset($_SESSION['user_id'])) {
-            throw new Exception('missing session user ID');
-        }
-
-        $userId        = $_SESSION['user_id'];
-        $query         = "SELECT * FROM `users` WHERE `id`='" . $userId . "'";
-        $db            = SiteSpecific::getDb();
-        $active_record = $db->query($query);
-
-        if ($active_record->num_rows == 0) {
-            $data = array(
-                'user_id' => $userId,
-                'nonce'   => \iRAP\CoreLibs\StringLib::generateRandomString(24)
-            );
-
-            ksort($data);
-
-            $jsonData = json_encode($data);
-
-            $signature         = hash_hmac('sha256', $jsonData, BROKER_SECRET);
-            $data['signature'] = $signature;
-
-            $jsonData = json_encode($data);
-            $url      = HOSTNAME . '/grant_access?data=' . base64_encode($jsonData);
-
-            $emailBody = 
-                "User: " . $userId . " has tried to access the logging service but has " .
-                    "not been given access yet. " .
-                    "<br />" .
-                    "<a href=" . $url . ">Click here to grant permission.</a>";
-
-            $emailer = SiteSpecific::getEmailer();
-            $emailer->send(
-                "IT Admin", 
-                ADMIN_EMAIL, 
-                $subject = "Logs Access Request", 
-                $emailBody
-            );
-
-            $outputMessage = 
-                "You have not yet been granted access. " . 
-                    "An email has been sent to the admin account to grant/deny access.";
-
-            die($outputMessage);
-        }
+        # create a new log
+        $app->post('/logs', function (\Slim\Http\Request $request, Slim\Http\Response $response, $args) {
+            $logsController = new LogsController($request, $response, $args);
+            return $logsController->handlePostedLog();
+        });
+        
+        $app->get('/', function (\Slim\Http\Request $request, Slim\Http\Response $response, $args) {
+            return $response->withRedirect("/logs/page/1");
+        });
+        
+        # display the list of logs
+        $app->get('/logs', function(\Slim\Http\Request $request, Slim\Http\Response $response, $args) {
+            return $response->withRedirect("/logs/page/1");
+        });
+        
+        $app->get('/logs/page/{id:[0-9]+}', function (\Slim\Http\Request $request, Slim\Http\Response $response, $args) {
+            $logsController = new LogsController($request, $response, $args);
+            return $logsController->showLogs($args['id']);
+        });
+        
+        # get a specific log
+        $app->get('/logs/{id:[0-9]+}', function (\Slim\Http\Request $request, Slim\Http\Response $response, $args) {
+            $logsController = new LogsController($request, $response, $args);
+            return $logsController->showLog($args['id']);
+        });
+        
+        return $app;
     }
-
-
-    public function index()
+    
+    
+    /**
+     * Handle a POSTed log.
+     * @return \Slim\Http\Response
+     * @throws Exception
+     */
+    private function handlePostedLog() : \Slim\Http\Response
     {
-        $this->page(1);
+        try
+        {
+            $requiredPostFields = array('message', 'context', 'priority', 'when');
+            $allPostPutVars = $this->getRequest()->getParsedBody();
+
+            foreach ($requiredPostFields as $requiredPostField)
+            {
+                if (!isset($allPostPutVars[$requiredPostField]))
+                {
+                    throw new Exception("Missing required POST field: " . $requiredPostField, 400);
+                }
+            }
+            
+            $message = $allPostPutVars['message'];
+            $context = json_encode(json_decode($allPostPutVars['context']));
+            $priority = intval($allPostPutVars['priority']);
+            $when = intval($allPostPutVars['when']);
+            $log = Log::createNew($message, $context, $priority, $when);
+            $response = SiteSpecific::createJsonResponse($this->m_response, ["message" => "Log created"], 200);
+        } 
+        catch (Exception $ex) 
+        {
+            $errorCode = $ex->getCode();
+            $message = $ex->getMessage();
+            
+            if ($ex->getCode() == 0)
+            {
+                $errorCode = 500;
+                $message = "There was an unexpected exception.";
+            }
+            
+            $response = SiteSpecific::createJsonResponse($this->m_response, ["error_message" => $message], $code);
+        }
+        
+        return $response;
     }
-
-
+    
+    
     /**
      * User has specified seeing a certain page.
      */
-    public function page($page_id)
+    private function showLogs(int $pageNumber)
     {
-        $this->load->model('log_model');
-
-        if (isset($_POST['filter_form'])) {
-            $this->handle_filter_submission();
+        if (isset($_POST['filter_form'])) 
+        {
+            //$this->handleFilterSubmission();
         }
-
-        $log_filter = LogFilter::load();
-
-        $offset = ($page_id - 1) * RESULTS_PER_PAGE;
-        $limit  = RESULTS_PER_PAGE;
-
-        $logs = Log_model::load_filter($offset, $limit, $log_filter);
-
-
-        $url_generator = function ($page_counter) {
-            return '/logs/page/' . $page_counter;
-        };
-
-        $maximum         = Log_model::get_num_logs($log_filter);
-        $pagination_data = array(
-            'maximum'       => $maximum,
-            'url_generator' => $url_generator,
-            'current_page'  => $page_id
-        );
-
-        $logs_view_data = array(
-            'logs' => $logs
-        );
-
-        $search_data = array(
-            'log_filter' => $log_filter
-        );
-
-
-        $header_view     = SiteSpecific::get_view(__DIR__ . '/../views/header.php', array('title' => 'Logs'));
-        $search_view     = SiteSpecific::get_view(__DIR__ . '/../views/search_logs.php', $search_data);
-        $pagination_view = $maximum ? SiteSpecific::get_view(__DIR__ . '/../views/pagination.php', $pagination_data) : '';
-        $logs_view       = SiteSpecific::get_view(__DIR__ . '/../views/logs.php', $logs_view_data);
-        $footer_view     = SiteSpecific::get_view(__DIR__ . '/../views/footer.php');
-
-        print
-            $header_view .
-            $search_view .
-            $pagination_view .
-            $logs_view .
-            $pagination_view .
-            $footer_view;
+        
+        $logFilter = LogFilter::load();
+        $resultsPerPage = $_ENV['RESULTS_PER_PAGE'];
+        $offset = ($pageNumber - 1) * $resultsPerPage;
+        $limit = $resultsPerPage;
+        
+        /* @var $logTable LogTable */
+        $logTable = LogTable::getInstance();
+        //$logs = $logTable->loadByFilter($offset, $limit, $logFilter);
+        $logsArray = $logTable->loadRange($offset, $resultsPerPage);
+        $logCollection = new LogCollection(...$logsArray);
+        //$maximum = Log_model::getNumLogs($logFilter);
+        //$paginationView = $maximum ? SiteSpecific::getView(__DIR__ . '/../views/pagination.php', $pagination_data) : '';
+        
+        $body = new ViewLogsTable($logCollection);
+        $templateView = new ViewTemplate("Logs ({$pageNumber})", (string)$body);
+        $response = SiteSpecific::createHtmlResponse($this->m_response, $templateView);
     }
 
 
     /**
-     * User has requested to see a specific log by id.
+     * Handle a user request to view a specific log by ID
      */
-    public function id($id)
+    private function showLog(int $id) : \Slim\Http\Response
     {
-        $this->load->model('log_model');
-        $logs = Log_model::load_id($id);
-
-        if (count($logs) == 1) {
-            $log = $logs[0];
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-                print SiteSpecific::get_view(__DIR__ . '/../views/single_log.php', array('log' => $log));
-            }
-            else
-            {
-                iRAP\CoreLibs\Core::redirectUser("/logs#{$id}");
-            }
-        }
-        else
+        try
         {
-            print "No such log exists!";
+            $log = LogTable::getInstance()->load($id);
+            $response = SiteSpecific::createHtmlResponse($this->m_response, new ViewSingleLog($log));
+        } 
+        catch (\iRAP\MysqlObjects\NoSuchIdException $ex) 
+        {
+            $response = SiteSpecific::createHtmlResponse($this->m_response, "No such log exists!");
         }
+        
+        return $response;
     }
 
 
@@ -147,82 +136,84 @@ class LogsController
      * Handle the submission of the filter form on the logs page.
      * This form allows the user to filter the logs that will appear.
      */
-    private function handle_filter_submission()
+    private function handleFilterSubmission()
     {
         $filter = array();
+        $filterObject = new LogFilter();
 
-        $filter_object = new LogFilter();
-
-        if (!empty($_POST['search_text'])) {
-            $filter_object->setSearchText($_POST['search_text']);
+        if (!empty($_POST['search_text'])) 
+        {
+            $filterObject->setSearchText($_POST['search_text']);
         }
 
-        if (!empty($_POST['max_age_amount'])) {
-            $max_age_amount = intval($_POST['max_age_amount']);
-            $max_age_units  = $_POST['max_age_units'];
+        if (!empty($_POST['max_age_amount'])) 
+        {
+            $maxAgeAmount = intval($_POST['max_age_amount']);
+            $maxAgeUnits  = $_POST['max_age_units'];
 
             // convert the amount to minutes which we use in the rest of the system.
-            switch ($max_age_units)
+            switch ($maxAgeUnits)
             {
-            case 'minutes':
+                case 'minutes':
                 {
                     // do nothing, already in the right quantity.
-}
+                }
                 break;
 
-            case 'hours':
-            {
-                $max_age_amount = $max_age_amount * 60;
-}
-            break;
+                case 'hours':
+                {
+                    $maxAgeAmount = $maxAgeAmount * 60;
+                }
+                break;
 
-            case 'days':
-            {
-                $max_age_amount = $max_age_amount * 60 * 24;
-}
-            break;
+                case 'days':
+                {
+                    $maxAgeAmount = $maxAgeAmount * 60 * 24;
+                }
+                break;
 
-            default:
-            {
-                throw new Exception("Unrecognized min age unit: " . $max_age_units);
-}
+                default:
+                {
+                    throw new Exception("Unrecognized min age unit: " . $maxAgeUnits);
+                }
             }
 
-            $filter_object->set_max_age($max_age_amount);
+            $filterObject->set_max_age($maxAgeAmount);
         }
 
-        if (!empty($_POST['min_age_amount'])) {
-            $min_age_amount = intval($_POST['min_age_amount']);
-            $min_age_units  = $_POST['min_age_units'];
+        if (!empty($_POST['min_age_amount'])) 
+        {
+            $minAgeAmount = intval($_POST['min_age_amount']);
+            $minAgeUnits  = $_POST['min_age_units'];
 
             // convert the amount to minutes which we use in the rest of the system.
-            switch ($min_age_units)
+            switch ($minAgeUnits)
             {
-            case 'minutes':
+                case 'minutes':
                 {
                     // do nothing, already in the right quantity.
-}
+                }
                 break;
 
-            case 'hours':
+                case 'hours':
                 {
-                    $min_age_amount = $min_age_amount * 60;
-}
+                    $minAgeAmount = $minAgeAmount * 60;
+                }
                 break;
 
-            case 'days':
+                case 'days':
                 {
-                    $min_age_amount = $min_age_amount * 60 * 24;
-}
+                    $minAgeAmount = $minAgeAmount * 60 * 24;
+                }
                 break;
 
-            default:
+                default:
                 {
-                    throw new Exception("Unrecognized min age unit: " . $max_age_units);
-}
+                        throw new Exception("Unrecognized min age unit: " . $maxAgeUnits);
+                }
             }
-
-            $filter_object->set_min_age($min_age_amount);
+            
+            $filterObject->set_min_age($minAgeAmount);
         }
 
         // order is very important as it correlates to the alert level 0-6
@@ -240,14 +231,13 @@ class LogsController
 
         foreach ($alert_levels as $alert_level => $alert_level_name)
         {
-            if ($_POST['level_' . $alert_level_name] === "true") {
-                $filter_object->enable_alert_level($alert_level);
+            if ($_POST['level_' . $alert_level_name] === "true") 
+            {
+                $filterObject->enable_alert_level($alert_level);
             }
         }
 
         // save the filter to the session.
-        $filter_object->save();
+        $filterObject->save();
     }
-
-
 }

@@ -25,10 +25,10 @@ class ArchivedLog extends iRAP\MysqlObjects\AbstractUuidTableRowObject
     {
         $archivedLog = new ArchivedLog(
             array(
-            'message' => $log->get_message(),
-            'context' => $log->get_context(),
-            'priority' => $log->get_priority(),
-            'when' => $log->get_when()
+                'message' => $log->getMessage(),
+                'context' => $log->getContext(),
+                'priority' => $log->getPriority(),
+                'when' => $log->getWhen()
             )
         );
         
@@ -40,18 +40,10 @@ class ArchivedLog extends iRAP\MysqlObjects\AbstractUuidTableRowObject
     protected function getAccessorFunctions(): array
     {
         return array(
-            'message'  => function () {
-                return $this->m_message; 
-            },
-            'context'  => function () {
-                return $this->m_context; 
-            },
-            'priority' => function () {
-                return $this->m_priority; 
-            },
-            'when'     => function () {
-                return $this->m_when; 
-            }
+            'message'  => function () { return $this->m_message; },
+            'context'  => function () { return $this->m_context; },
+            'priority' => function () { return $this->m_priority; },
+            'when'     => function () { return $this->m_when; }
         );
     }
     
@@ -59,18 +51,10 @@ class ArchivedLog extends iRAP\MysqlObjects\AbstractUuidTableRowObject
     protected function getSetFunctions(): array
     {
         return array(
-            'message'  => function ($x) {
-                $this->m_message = $x; 
-            },
-            'context'  => function ($x) {
-                $this->m_context = $x; 
-            },
-            'priority' => function ($x) {
-                $this->m_priority = $x; 
-            },
-            'when'     => function ($x) {
-                $this->m_when = $x; 
-            }
+            'message'  => function ($x) { $this->m_message = $x; },
+            'context'  => function ($x) { $this->m_context = $x; },
+            'priority' => function ($x) { $this->m_priority = $x; },
+            'when'     => function ($x) { $this->m_when = $x; }
         );
     } 
     
@@ -81,22 +65,9 @@ class ArchivedLog extends iRAP\MysqlObjects\AbstractUuidTableRowObject
     }
     
     
-    
     // Accessors
-    public function get_message()  
-    {
-        return $this->m_message; 
-    }
-    public function get_context()  
-    {
-        return $this->m_context; 
-    }
-    public function get_priority() 
-    {
-        return $this->m_priority; 
-    }
-    public function get_when()     
-    {
-        return $this->m_when; 
-    }
+    public function getMessage() : string  { return $this->m_message; }
+    public function getContext() { return $this->m_context; }
+    public function getPriority() : int { return $this->m_priority; }
+    public function getWhen() : int { return $this->m_when; }
 }

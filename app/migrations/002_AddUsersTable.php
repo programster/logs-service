@@ -22,19 +22,6 @@ class AddUsersTable implements iRAP\Migrations\MigrationInterface
             ") ENGINE=InnoDB";
         
         $mysqliConn->query($query);
-        
-        // Add the initial users        
-        $initial_users = array(
-            array(
-                'email'         => '',
-                'password_hash' => ''
-            ),
-        );
-        
-        foreach ($initial_users as $user_array)
-        {
-            $mysqliConn->insert('users', $user_array);
-        }
     }
     
     

@@ -55,7 +55,7 @@ class LogTable extends \iRAP\MysqlObjects\AbstractTable
     
     
     /**
-     * 
+     * Load logs from a filter
      * @param int $offset       - the offset on the mysql query
      * @param int $limit        - the limit of the mysql query.
      * @param int $min_age      - minimum age in minutes (can be null to not specify)
@@ -63,11 +63,11 @@ class LogTable extends \iRAP\MysqlObjects\AbstractTable
      * @param int $min_priority - the minimum priority - can be null to not specify
      * @param int $max_priority - the max priority - can be null to not specify.
      */
-    public function load_filter($offset, $limit, LogFilter $filter_object)
+    public function loadByFilter(int $offset, int $limit, LogFilter $filter_object) : LogCollection
     {
         $query = 
             "SELECT * FROM `" . $this->getTableName() . "` " .
-            $filter_object->get_where_statement() .
+            $filter_object->generateWhereStatement() .
             " ORDER BY `id` DESC";
 
         if ($limit !== null) {
@@ -81,6 +81,7 @@ class LogTable extends \iRAP\MysqlObjects\AbstractTable
         $db = $this->getDb();
         $result = $db->query($query);
         
-        return $this->convertMysqliResultToObjects($result);
+        $logsArray = $this->convertMysqliResultToObjects($result);
+        return new LogCollection(...$logsArray);
     }
 }

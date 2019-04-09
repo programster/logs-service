@@ -1,3 +1,12 @@
+<?php
+
+class ViewLogin extends AbstractView
+{
+    protected function renderContent() 
+    {
+?>
+
+
 
 <p>To be able to view the logs, you need to login.</p>
 
@@ -42,7 +51,8 @@
         $('input:first-child').focus();
         $('form').submit(function () {
             $.post(
-                    '<?php echo iRAP\CoreLibs\Core::getCurrentUrl() ?>',
+        protected function renderContent(){
+        }                    '<?php echo iRAP\CoreLibs\Core::getCurrentUrl() ?>',
                     $(this).serialize(),
                     function (data) {
                         if (data.result === 'success')
@@ -59,3 +69,8 @@
         });
     });
 </script>
+
+<?php
+    }
+}
+?>
