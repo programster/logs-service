@@ -69,6 +69,9 @@ COPY docker/apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 # Add our supervisor config to the container
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+
+COPY .env /var/www/site/.env
+
 # Use the crontab file.
 ADD docker/crons.conf /root/crons.conf
 RUN crontab /root/crons.conf
