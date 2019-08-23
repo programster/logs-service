@@ -3,15 +3,15 @@
 class ViewLogsTable extends AbstractView
 {
     private $m_logs;
-    
-    
+
+
     public function __construct(LogCollection $logs)
     {
         $this->m_logs = $logs;
     }
-    
-    
-    protected function renderContent() 
+
+
+    protected function renderContent()
     {
 ?>
 
@@ -52,13 +52,13 @@ class ViewLogsTable extends AbstractView
                             $logDateTime = new DateTime();
                             $logDateTime->setTimestamp($log->getWhen());
                             $timeDiff = Programster\CoreLibs\TimeLib::get_human_readble_time_difference($logDateTime);
-                            
+
                             // whole row is clickable link to the log id.
                             // http://stackoverflow.com/questions/17147821/how-to-make-a-whole-row-in-a-table-clickable-as-a-link
 
                             /* @var $log Log */
                             print
-                                "<tr class='clickableRow' onclick='window.location=\"/logs/{$log->get_id()}\"'>" .
+                                "<tr class='clickableRow' onclick='window.open(\"/logs/{$log->get_id()}\", \"_blank\")'>" .
                                     "<td>" . $log->get_id() . "</td>" .
                                     "<td>" . $log->getMessage() . "</td>" .
                                     "<td>" . $log->getPriority() . "</td>" .
