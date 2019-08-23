@@ -2,5 +2,5 @@ Dockerfile
 .dockerignore
 app/.env
 app/vendor
-
+.fuse*
 /app/nbproject/private/
