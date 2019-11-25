@@ -21,8 +21,10 @@ export PROJECT_NAME=$PROJECT_NAME
 
 CONTAINER_IMAGE="`echo $REGISTRY`/`echo $PROJECT_NAME`"
 
-docker kill $PROJECT_NAME
-docker rm $PROJECT_NAME
+
+docker stop `docker ps -aq`
+docker rm `docker ps -aq`
+
 
 #docker run -d \
 #  --restart=always \
