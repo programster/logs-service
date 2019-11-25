@@ -4,7 +4,7 @@ require_once __DIR__ . '/../bootstrap.php';
 
 $slimSettings = array('determineRouteBeforeAppMiddleware' => true);
 
-if (ENVIRONMENT === 'dev') 
+if (getenv('ENVIRONMENT') === 'dev') 
 {
     $slimSettings['displayErrorDetails'] = true;
 }

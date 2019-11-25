@@ -63,11 +63,11 @@ class LogTable extends \iRAP\MysqlObjects\AbstractTable
      * @param int $min_priority - the minimum priority - can be null to not specify
      * @param int $max_priority - the max priority - can be null to not specify.
      */
-    public function loadByFilter(int $offset, int $limit, LogFilter $filter_object) : LogCollection
+    public function loadByFilter(int $offset, int $limit, LogFilter $filter) : LogCollection
     {
         $query = 
             "SELECT * FROM `" . $this->getTableName() . "` " .
-            $filter_object->generateWhereStatement() .
+            $filter->generateWhereStatement() .
             " ORDER BY `id` DESC";
 
         if ($limit !== null) {

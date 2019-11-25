@@ -101,9 +101,9 @@ class LogsController extends AbstractSlimController
         
         /* @var $logTable LogTable */
         $logTable = LogTable::getInstance();
-        //$logs = $logTable->loadByFilter($offset, $limit, $logFilter);
-        $logsArray = $logTable->loadRange($offset, $resultsPerPage);
-        $logCollection = new LogCollection(...$logsArray);
+        $logCollection = $logTable->loadByFilter($offset, $limit, $logFilter);
+        //$logsArray = $logTable->loadRange($offset, $resultsPerPage);
+        //$logCollection = new LogCollection(...$logsArray);
         //$maximum = Log_model::getNumLogs($logFilter);
         //$paginationView = $maximum ? SiteSpecific::getView(__DIR__ . '/../views/pagination.php', $pagination_data) : '';
         
