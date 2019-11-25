@@ -52,9 +52,20 @@ class Log extends iRAP\MysqlObjects\AbstractTableRowObject
     
     protected function getSetFunctions(): array
     {
+        $contextFunction = function($x) { 
+            $context = json_decode($x, true);
+            
+            if ($context === null)
+            {
+                $context = [$x];
+            }
+            
+            $this->m_context = $context;
+        };
+        
         return array(
             'message'  => function($x) { $this->m_message = $x; },
-            'context'  => function($x) { $this->m_context = json_decode($x, true); },
+            'context'  => $contextFunction,
             'priority' => function($x) { $this->m_priority = $x; },
             'when'     => function($x) { $this->m_when = $x; },
             'recieved' => function($x) { $this->m_recieved = $x; },
