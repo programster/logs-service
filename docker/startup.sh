@@ -19,7 +19,7 @@ service apache2 stop
 
 # run migrations
 # it is important this runs before supervisord launches background processes.
-/usr/bin/php /var/www/site/scripts/migrate.sh
+/usr/bin/php /var/www/site/scripts/migrate.php
 
 # sync the clock
 ntpdate ntp.ubuntu.com
